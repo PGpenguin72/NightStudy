@@ -60,7 +60,6 @@ export interface SeatRow {
 export interface Env {
   DB: D1Database;
   ASSETS: Fetcher;
-  GOOGLE_SERVICE_ACCOUNT: string;
-  GOOGLE_SPREADSHEET_ID: string;
+  APPS_SCRIPT_URL: string;
   CHECKIN_DEADLINE: string;
 }

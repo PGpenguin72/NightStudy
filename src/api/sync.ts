@@ -29,7 +29,7 @@ export async function handleSync(_req: Request | null, env: Env): Promise<Respon
   }
 
   try {
-    await syncToSheets(env, result.results);
+    await syncToSheets(env, result.results, today);
     await env.DB.prepare(`
       UPDATE attendance SET synced = 1 WHERE date = ? AND synced = 0
     `).bind(today).run();
