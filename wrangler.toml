@@ -1,6 +1,7 @@
 name = "nightstudy"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
+account_id = "9e1e36d2ce92a214f3e9dbb96b0be9d2"
 
 [assets]
 directory = "./public"
@@ -8,7 +9,7 @@ directory = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "nightstudy"
-database_id = "YOUR_D1_DATABASE_ID"
+database_id = "c2cfea10-e14a-40f8-a377-eb8edd3ec90d"
 
 [triggers]
 crons = ["0 15 * * 1-5"]
