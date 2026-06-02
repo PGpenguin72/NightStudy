@@ -214,14 +214,43 @@ html,body{
 #p-teacher{
   background:rgba(255,255,255,.18);
   border-radius:10px;
-  padding:9px 12px;
-  text-align:center;
-  font-size:clamp(.7rem,.82vw,.85rem);
-  font-weight:700;
-  color:var(--tw);
+  padding:10px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
   flex-shrink:0;
 }
 #p-teacher.hidden{ display:none; }
+
+#teacher-label{
+  font-size:clamp(.68rem,.8vw,.84rem);
+  font-weight:700;
+  color:var(--tw);
+  text-align:center;
+}
+
+#teacher-btns{
+  display:flex;
+  gap:7px;
+}
+
+#teacher-btns button{
+  flex:1;
+  padding:7px 4px;
+  border:none;
+  border-radius:8px;
+  font-size:clamp(.65rem,.78vw,.8rem);
+  font-weight:700;
+  cursor:pointer;
+  font-family:inherit;
+  transition:opacity .15s, transform .1s;
+}
+#teacher-btns button:hover   { opacity:.85; }
+#teacher-btns button:active  { transform:scale(.97); }
+#teacher-btns button.loading { opacity:.5; cursor:wait; }
+
+#btn-refresh        { background:#6EE7A0; color:#0A3820; }
+#btn-sync-teachers  { background:#93C5FD; color:#1E3A5F; }
 
 /* ─── 右側座位格 ─────────────────────────────────────────── */
 #grid-area{

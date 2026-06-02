@@ -16,4 +16,4 @@ crons = ["0 15 * * 1-5"]
 
 [vars]
 CHECKIN_DEADLINE = "18:00:00"
-APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL"
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6RdG8VBAQ2eodIH92YgY4csN1r_x3zM64ihTQeKgHE-HYXno1rsdDfs5lVIJIUxgCYA/exec"

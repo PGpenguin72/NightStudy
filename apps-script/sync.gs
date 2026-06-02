@@ -28,9 +28,38 @@ function doPost(e) {
   }
 }
 
-// 手動觸發用（測試時用）
+// GET 端點：action=teachers 回傳教師名單，其他回傳狀態
 function doGet(e) {
+  var action = e && e.parameter ? e.parameter.action : null;
+
+  if (action === 'teachers') {
+    return getTeachersJson();
+  }
+
   return jsonResponse({ status: 'ok', message: '夜自習考勤同步 Web App 運作中' });
+}
+
+// 回傳教師名單 JSON（供 Cloudflare Worker 同步用）
+function getTeachersJson() {
+  try {
+    var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName('教師名單');
+
+    if (!sheet || sheet.getLastRow() < 2) {
+      return jsonResponse({ teachers: [] });
+    }
+
+    var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues();
+    var teachers = rows
+      .filter(function(r) { return String(r[0]).trim() !== ''; })
+      .map(function(r) {
+        return { card_id: String(r[0]).trim(), name: String(r[1]).trim() };
+      });
+
+    return jsonResponse({ teachers: teachers });
+  } catch (err) {
+    return jsonResponse({ error: err.message });
+  }
 }
 
 function syncRecords(ss, date, records) {

@@ -4,6 +4,7 @@ import { handleGetSeats } from './api/seats';
 import { handleManual } from './api/manual';
 import { handleGetSession } from './api/session';
 import { handleSync } from './api/sync';
+import { handleSyncTeachers } from './api/syncTeachers';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -50,6 +51,8 @@ async function handleApi(
       res = await handleGetSession(request, env);
     } else if (path === '/api/sync' && method === 'POST') {
       res = await handleSync(request, env);
+    } else if (path === '/api/admin/sync-teachers' && method === 'POST') {
+      res = await handleSyncTeachers(request, env);
     } else {
       return Response.json({ error: 'NOT_FOUND' }, { status: 404, headers: CORS });
     }

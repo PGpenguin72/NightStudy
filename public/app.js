@@ -25,6 +25,7 @@ const pTime = $('p-time'), pDate = $('p-date');
 const nExp  = $('n-expected'), nPres = $('n-present'), nAbs = $('n-absent');
 const logList = $('p-log-list'), teacherBar = $('p-teacher');
 const overlay = $('overlay'), smTitle = $('smenu-title'), smOpts = $('smenu-opts');
+const btnRefresh = $('btn-refresh'), btnSyncTeachers = $('btn-sync-teachers');
 
 // ── 時鐘 ─────────────────────────────────────────────────────
 (function clock() {
@@ -210,6 +211,33 @@ async function loadSeats() {
     drawAll(); calcStats();
   } catch {}
 }
+
+// ── 管理按鈕 ─────────────────────────────────────────────────
+btnRefresh.addEventListener('click', async () => {
+  btnRefresh.classList.add('loading');
+  btnRefresh.textContent = '更新中…';
+  await loadSeats();
+  btnRefresh.classList.remove('loading');
+  btnRefresh.textContent = '⟳ 立即更新';
+  pushLog('✅ 座位資料已更新');
+});
+
+btnSyncTeachers.addEventListener('click', async () => {
+  btnSyncTeachers.classList.add('loading');
+  btnSyncTeachers.textContent = '同步中…';
+  try {
+    const r = await fetch('/api/admin/sync-teachers', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({teacher_card_id: S.teacherCardId}),
+    });
+    const d = await r.json();
+    if (d.error) { pushLog(`⚠ 同步失敗：${d.error}`, true); }
+    else { pushLog(`✅ 教師名單已同步（${d.synced} 筆）`); }
+  } catch { pushLog('⚠ 同步失敗：網路錯誤', true); }
+  btnSyncTeachers.classList.remove('loading');
+  btnSyncTeachers.textContent = '☁ 同步教師名單';
+});
 
 // ── 啟動 ─────────────────────────────────────────────────────
 buildGrid();

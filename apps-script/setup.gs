@@ -3,12 +3,34 @@
 function setupSpreadsheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
+  setupTeacherList(ss);
   setupStudentList(ss);
   setupSeatTemplate(ss);
   setupSemesterStats(ss);
 
   SpreadsheetApp.flush();
-  Browser.msgBox('✅ 初始化完成！學生名單、座位模板、學期統計都建好了。');
+  Browser.msgBox('✅ 初始化完成！教師名單、學生名單、座位模板、學期統計都建好了。');
+}
+
+// ─── 教師名單 ─────────────────────────────────────────────────
+function setupTeacherList(ss) {
+  var sheet = getOrCreateSheet(ss, '教師名單', 0);
+  sheet.clearContents();
+  sheet.clearFormats();
+
+  sheet.getRange(1, 1, 1, 3).setValues([['卡號', '姓名', '備註']]);
+  styleHeader(sheet.getRange(1, 1, 1, 3));
+  sheet.setColumnWidth(1, 180);
+  sheet.setColumnWidth(2, 120);
+  sheet.setColumnWidth(3, 200);
+  sheet.setFrozenRows(1);
+
+  // 範例（替換成真實卡號）
+  sheet.getRange(2, 1, 1, 3).setValues([['TEACHER_CARD_001', '王老師', '班導師']]);
+
+  sheet.getRange(1, 5).setValue('⚠ 填入老師實體卡號，新增/刪除後點前端「同步教師名單」按鈕即可生效');
+  sheet.getRange(1, 5).setFontColor('#e67e22').setFontWeight('bold');
+  sheet.setColumnWidth(5, 420);
 }
 
 // ─── 學生名單 ─────────────────────────────────────────────────
