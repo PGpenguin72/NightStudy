@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>夜自習考勤系統</title>
+  <title>夜自習考勤</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -11,55 +11,58 @@
 <body>
   <div id="app">
 
-    <!-- ── 左側資訊面板 ── -->
-    <div id="left-panel">
-      <h1 id="classroom-name">夜自習教室</h1>
+    <aside id="left-panel">
+      <div id="lp-top">
+        <div id="room-label">夜自習教室</div>
+        <div id="session-dot" title="Session 狀態"></div>
+      </div>
 
-      <div id="datetime-card">
-        <div id="current-date">—</div>
-        <div id="current-time">--:--:--</div>
+      <div id="clock-card">
+        <div id="date-line">—</div>
+        <div id="time-line">--:--:--</div>
       </div>
 
       <div id="stats-row">
-        <div class="stat-card">
-          <div class="stat-label">應到</div>
-          <div class="stat-num" id="stat-expected">0</div>
-          <div class="stat-unit">人</div>
+        <div class="scard">
+          <span class="scard-label">應到</span>
+          <span class="scard-num" id="s-expected">—</span>
+          <span class="scard-unit">人</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">實到</div>
-          <div class="stat-num" id="stat-present">0</div>
-          <div class="stat-unit">人</div>
+        <div class="scard">
+          <span class="scard-label">實到</span>
+          <span class="scard-num" id="s-present">—</span>
+          <span class="scard-unit">人</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">缺席</div>
-          <div class="stat-num" id="stat-absent">0</div>
-          <div class="stat-unit">人</div>
+        <div class="scard">
+          <span class="scard-label">缺席</span>
+          <span class="scard-num" id="s-absent">—</span>
+          <span class="scard-unit">人</span>
         </div>
       </div>
 
-      <div id="scan-hint">請感應卡片簽到</div>
+      <div id="hint-bar">請感應卡片簽到</div>
 
-      <div id="notif-box">
-        <div id="notif-content"></div>
+      <div id="log-box">
+        <div id="log-list"></div>
       </div>
 
-      <!-- 老師管理模式橫幅 -->
-      <div id="teacher-banner">🔑 管理模式｜點擊座位調整狀態</div>
-    </div>
+      <div id="teacher-bar" class="hidden">
+        🔑 管理模式｜點擊座位調整狀態
+      </div>
+    </aside>
 
-    <!-- ── 右側座位格 ── -->
-    <div id="right-panel">
-      <div id="seat-grid"></div>
-    </div>
+    <main id="right-panel">
+      <div id="grid-wrap">
+        <div id="seat-grid"></div>
+      </div>
+    </main>
 
   </div>
 
-  <!-- 狀態選單 overlay -->
   <div id="overlay" class="hidden">
     <div id="status-menu">
-      <div id="menu-title"></div>
-      <div id="menu-options"></div>
+      <p id="menu-title"></p>
+      <div id="menu-opts"></div>
       <button id="menu-cancel">取消</button>
     </div>
   </div>
