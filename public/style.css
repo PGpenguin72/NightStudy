@@ -267,8 +267,8 @@ html,body{
 #seat-grid{
   flex:1;
   display:grid;
-  grid-template-columns:repeat(6,1fr);
-  grid-template-rows:repeat(8,1fr);
+  grid-template-columns:repeat(8,1fr);  /* 橫排：A B C D E F G H */
+  grid-template-rows:repeat(6,1fr);    /* 豎排：1 2 3 4 5 6 */
   gap:9px;
 }
 

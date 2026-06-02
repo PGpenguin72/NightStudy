@@ -1,7 +1,8 @@
 'use strict';
 
-const ROWS = ['A','B','C','D','E','F','G','H'];
-const COLS = [1,2,3,4,5,6];
+// 橫排字母（A-H，左→右），豎排數字（1-6，上→下）
+const LETTERS  = ['A','B','C','D','E','F','G','H'];
+const NUMBERS  = [1,2,3,4,5,6];
 const WK   = ['日','一','二','三','四','五','六'];
 
 const MANUAL_OPTS = [
@@ -130,7 +131,7 @@ function drawCard(id) {
 }
 
 function drawAll() {
-  ROWS.forEach(r => COLS.forEach(c => drawCard(`${r}${c}`)));
+  NUMBERS.forEach(n => LETTERS.forEach(l => drawCard(`${l}${n}`)));
 }
 
 function calcStats() {
@@ -146,8 +147,10 @@ function calcStats() {
 function buildGrid() {
   const grid = $('seat-grid');
   grid.innerHTML = '';
-  ROWS.forEach(r => COLS.forEach(c => {
-    const id  = `${r}${c}`;
+  // 橫排字母（A-H），豎排數字（1-6）
+  // DOM 順序：A1 B1 C1 D1 E1 F1 G1 H1 → A2 B2 … → A6 B6…H6
+  NUMBERS.forEach(n => LETTERS.forEach(l => {
+    const id  = `${l}${n}`;
     const div = document.createElement('div');
     div.className   = 'sc empty';
     div.dataset.id  = id;
