@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>夜自習考勤系統</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="header-left">
+        <h1>夜自習考勤</h1>
+        <span id="current-date">—</span>
+        <span id="current-weekday">—</span>
+      </div>
+      <div class="header-right">
+        <span class="label">Session</span>
+        <span id="session-status" class="status-badge">⚪ 未開始</span>
+      </div>
+    </header>
+
+    <div id="teacher-banner">
+      🔑 老師管理模式 &mdash; 點擊座位調整狀態 &mdash; 再次刷老師卡退出
+    </div>
+
+    <div id="notification"></div>
+
+    <main>
+      <div class="grid-labels">
+        <div class="corner"></div>
+        <div class="col-label">1</div>
+        <div class="col-label">2</div>
+        <div class="col-label">3</div>
+        <div class="col-label">4</div>
+        <div class="col-label">5</div>
+        <div class="col-label">6</div>
+      </div>
+      <div id="seat-grid"></div>
+    </main>
+
+    <footer>
+      <div class="legend">
+        <span class="chip chip-empty">空位</span>
+        <span class="chip chip-expected">應到未到</span>
+        <span class="chip chip-present">在場</span>
+        <span class="chip chip-late">遲到在場</span>
+        <span class="chip chip-out">外出中</span>
+        <span class="chip chip-excused">請假</span>
+        <span class="chip chip-absent">曠課</span>
+      </div>
+    </footer>
+  </div>
+
+  <div id="status-menu-overlay" class="overlay hidden">
+    <div id="status-menu" class="menu-card">
+      <div class="menu-header">
+        <span id="menu-seat-label"></span>
+        <button id="menu-close" class="menu-close-btn">✕</button>
+      </div>
+      <div id="menu-buttons"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

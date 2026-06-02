@@ -1,0 +1,1 @@
+GOOGLE_SERVICE_ACCOUNT={"type":"service_account","client_email":"xxx@project.iam.gserviceaccount.com","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"}
