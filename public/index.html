@@ -1,72 +1,73 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>夜自習考勤</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div id="app">
+<div id="app">
 
-    <aside id="left-panel">
-      <div id="lp-top">
-        <div id="room-label">夜自習教室</div>
-        <div id="session-dot" title="Session 狀態"></div>
-      </div>
+  <!-- ══ 左側面板 ══════════════════════════════════════════ -->
+  <aside id="panel">
 
-      <div id="clock-card">
-        <div id="date-line">—</div>
-        <div id="time-line">--:--:--</div>
-      </div>
-
-      <div id="stats-row">
-        <div class="scard">
-          <span class="scard-label">應到</span>
-          <span class="scard-num" id="s-expected">—</span>
-          <span class="scard-unit">人</span>
-        </div>
-        <div class="scard">
-          <span class="scard-label">實到</span>
-          <span class="scard-num" id="s-present">—</span>
-          <span class="scard-unit">人</span>
-        </div>
-        <div class="scard">
-          <span class="scard-label">缺席</span>
-          <span class="scard-num" id="s-absent">—</span>
-          <span class="scard-unit">人</span>
-        </div>
-      </div>
-
-      <div id="hint-bar">請感應卡片簽到</div>
-
-      <div id="log-box">
-        <div id="log-list"></div>
-      </div>
-
-      <div id="teacher-bar" class="hidden">
-        🔑 管理模式｜點擊座位調整狀態
-      </div>
-    </aside>
-
-    <main id="right-panel">
-      <div id="grid-wrap">
-        <div id="seat-grid"></div>
-      </div>
-    </main>
-
-  </div>
-
-  <div id="overlay" class="hidden">
-    <div id="status-menu">
-      <p id="menu-title"></p>
-      <div id="menu-opts"></div>
-      <button id="menu-cancel">取消</button>
+    <div id="p-header">
+      <h1 id="room-name">夜自習教室</h1>
+      <div id="status-pill" class="offline">未開始</div>
     </div>
-  </div>
 
-  <script src="app.js"></script>
+    <div id="p-clock">
+      <div id="p-date">—</div>
+      <div id="p-time">--:--:--</div>
+    </div>
+
+    <div id="p-stats">
+      <div class="stat">
+        <div class="stat-n" id="n-expected">—</div>
+        <div class="stat-l">應到</div>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat">
+        <div class="stat-n" id="n-present">—</div>
+        <div class="stat-l">實到</div>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat">
+        <div class="stat-n" id="n-absent">—</div>
+        <div class="stat-l">缺席</div>
+      </div>
+    </div>
+
+    <div id="p-hint">感應卡片以簽到</div>
+
+    <div id="p-log">
+      <div id="p-log-title">最新紀錄</div>
+      <div id="p-log-list"></div>
+    </div>
+
+    <div id="p-teacher" class="hidden">🔑 管理模式｜點擊座位可調整狀態</div>
+
+  </aside>
+
+  <!-- ══ 右側座位格 ════════════════════════════════════════ -->
+  <main id="grid-area">
+    <div id="seat-grid"></div>
+  </main>
+
+</div>
+
+<!-- 狀態選單 -->
+<div id="overlay" class="hidden">
+  <div id="smenu">
+    <div id="smenu-title"></div>
+    <div id="smenu-opts"></div>
+    <button id="smenu-cancel">取消</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>

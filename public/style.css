@@ -1,395 +1,390 @@
-/* ── Reset & root ─────────────────────────────────────────── */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+/* ─── Reset ──────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
-:root {
-  --bg:        #DDD0BB;
-  --panel:     #877565;
-  --panel-on:  #6A5C4E;
-  --white:     #FFFFFF;
-  --card-bg:   #F5EFE6;
+/* ─── 設計變數 ───────────────────────────────────────────── */
+:root{
+  --bg:       #E4D9C8;
+  --panel-bg: #7A6B5A;
+  --panel-on: #5E5044;
+  --white:    #FFFFFF;
+  --off-white:#F4EFE7;
 
-  --text-h:    #1A1208;
-  --text-m:    #5A4E3C;
-  --text-s:    #9A8E7E;
+  --t1: #1A1208;   /* 主文字 */
+  --t2: #5C5040;   /* 次文字 */
+  --t3: #9C8E7A;   /* 淡文字 */
+  --tw: #FFFFFF;   /* 白字 */
 
-  --grid-bg:   #BFB09A;
-  --seat-empty:#E8E0D4;
-  --seat-et:   #B0A494;   /* empty text */
+  /* 座位狀態 */
+  --c-empty:    #E8E0D2;  --e-t: #A89880;
+  --c-present:  #F2C141;  --p-t: #2C1E00;
+  --c-late:     #F5A020;  --l-t: #2C1400;
+  --c-out:      #F8E070;  --o-t: #4A3800;
+  --c-expected: #E06018;  --x-t: #FFFFFF;
+  --c-excused:  #4A92D8;  --u-t: #FFFFFF;
+  --c-absent:   #C03828;  --a-t: #FFFFFF;
 
-  --present:   #F2C141;
-  --present-t: #2C1E00;
-  --late:      #F5A020;
-  --late-t:    #2C1400;
-  --out:       #F8DC70;
-  --out-t:     #3C2800;
-  --expected:  #E06A1A;
-  --expected-t:#FFFFFF;
-  --excused:   #4A8FD4;
-  --excused-t: #FFFFFF;
-  --absent:    #C43828;
-  --absent-t:  #FFFFFF;
+  --r: 16px;  /* 圓角基數 */
+  --gap: 12px;
 }
 
-/* ── 全局固定 16:9 ────────────────────────────────────────── */
-html, body {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--bg);
-  font-family: 'Noto Sans TC', 'PingFang TC', system-ui, sans-serif;
+/* ─── 全頁固定 16:9，不超出螢幕 ──────────────────────────── */
+html,body{
+  width:100vw; height:100vh;
+  overflow:hidden;
+  background:var(--bg);
+  font-family:'Noto Sans TC','PingFang TC',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
 }
 
-#app {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  padding: 1.6vh 1.8vw;
-  gap: 1.4vw;
+#app{
+  width:100vw; height:100vh;
+  display:flex;
+  padding:16px;
+  gap:14px;
 }
 
-/* ── 左側面板 ─────────────────────────────────────────────── */
-#left-panel {
-  width: 30vw;
-  min-width: 260px;
-  max-width: 400px;
-  height: 100%;
-  background: var(--panel);
-  border-radius: 2.2vh;
-  padding: 2.2vh 1.8vw;
-  display: flex;
-  flex-direction: column;
-  gap: 1.4vh;
-  transition: background 0.5s ease;
-  flex-shrink: 0;
+/* ─── 左側面板 ───────────────────────────────────────────── */
+#panel{
+  width: 34vw;
+  min-width:300px;
+  max-width:480px;
+  height:100%;
+  background:var(--panel-bg);
+  border-radius:calc(var(--r)*1.5);
+  padding:22px 20px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  flex-shrink:0;
+  transition:background .5s;
+}
+#panel.on{ background:var(--panel-on); }
+
+/* 頂部：教室名 + 狀態膠囊 */
+#p-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
 }
 
-#left-panel.on { background: var(--panel-on); }
-
-/* 頂部：教室名 + session 燈 */
-#lp-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+#room-name{
+  font-size:clamp(1.6rem,2.2vw,2.4rem);
+  font-weight:900;
+  color:var(--tw);
+  line-height:1.1;
 }
 
-#room-label {
-  font-size: clamp(1.4rem, 2.4vw, 2.2rem);
-  font-weight: 900;
-  color: var(--white);
-  letter-spacing: 0.03em;
-  line-height: 1;
+#status-pill{
+  flex-shrink:0;
+  margin-top:4px;
+  padding:4px 12px;
+  border-radius:999px;
+  font-size:0.72rem;
+  font-weight:700;
+  letter-spacing:.05em;
+  transition:background .4s,color .4s;
+}
+#status-pill.offline{ background:rgba(255,255,255,.15); color:rgba(255,255,255,.6); }
+#status-pill.online { background:#6EE7A0; color:#0A3820; }
+
+/* 時鐘 */
+#p-clock{
+  background:var(--white);
+  border-radius:var(--r);
+  padding:14px 16px 16px;
+  flex-shrink:0;
 }
 
-#session-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.3);
-  transition: background 0.4s;
-  flex-shrink: 0;
+#p-date{
+  font-size:clamp(.8rem,.95vw,1rem);
+  font-weight:700;
+  color:var(--t2);
+  letter-spacing:.08em;
+  margin-bottom:4px;
 }
 
-#session-dot.active { background: #6EE7A0; box-shadow: 0 0 8px #6EE7A0; }
-
-/* 時鐘卡 */
-#clock-card {
-  background: var(--white);
-  border-radius: 1.4vh;
-  padding: 1.4vh 1.4vw 1.6vh;
-  flex-shrink: 0;
+#p-time{
+  font-size:clamp(2rem,3.2vw,3.4rem);
+  font-weight:900;
+  color:var(--t1);
+  letter-spacing:.03em;
+  line-height:1;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
 }
 
-#date-line {
-  font-size: clamp(0.75rem, 1vw, 1rem);
-  font-weight: 700;
-  color: var(--text-m);
-  letter-spacing: 0.1em;
-  margin-bottom: 0.2vh;
+/* 統計列 */
+#p-stats{
+  background:var(--white);
+  border-radius:var(--r);
+  padding:14px 0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  flex-shrink:0;
 }
 
-#time-line {
-  font-size: clamp(2rem, 3.8vw, 3.6rem);
-  font-weight: 900;
-  color: var(--text-h);
-  letter-spacing: 0.04em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+.stat{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
 }
 
-/* 統計卡 */
-#stats-row {
-  display: flex;
-  gap: 0.8vw;
-  flex-shrink: 0;
+.stat-n{
+  font-size:clamp(2rem,2.8vw,3rem);
+  font-weight:900;
+  color:var(--t1);
+  line-height:1;
+  font-variant-numeric:tabular-nums;
 }
 
-.scard {
-  flex: 1;
-  background: var(--white);
-  border-radius: 1.4vh;
-  padding: 1.2vh 0.5vw 1vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1vh;
+.stat-l{
+  font-size:clamp(.72rem,.85vw,.9rem);
+  font-weight:700;
+  color:var(--t3);
+  letter-spacing:.06em;
 }
 
-.scard-label {
-  font-size: clamp(0.65rem, 0.85vw, 0.9rem);
-  font-weight: 700;
-  color: var(--text-m);
+.stat-div{
+  width:1px;
+  height:36px;
+  background:#E8E0D4;
 }
 
-.scard-num {
-  font-size: clamp(1.6rem, 2.6vw, 2.6rem);
-  font-weight: 900;
-  color: var(--text-h);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+/* 提示 */
+#p-hint{
+  text-align:center;
+  font-size:clamp(.82rem,.95vw,1rem);
+  font-weight:700;
+  color:rgba(255,255,255,.75);
+  letter-spacing:.06em;
+  flex-shrink:0;
 }
 
-.scard-unit {
-  font-size: clamp(0.6rem, 0.75vw, 0.8rem);
-  font-weight: 700;
-  color: var(--text-s);
+/* 記錄框 */
+#p-log{
+  flex:1;
+  background:var(--white);
+  border-radius:var(--r);
+  padding:12px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  overflow:hidden;
+  min-height:0;
 }
 
-/* 提示文字 */
-#hint-bar {
-  text-align: center;
-  font-size: clamp(0.8rem, 1.1vw, 1.05rem);
-  font-weight: 700;
-  color: rgba(255,255,255,0.8);
-  letter-spacing: 0.06em;
-  flex-shrink: 0;
+#p-log-title{
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--t3);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  flex-shrink:0;
 }
 
-/* 通知記錄框 */
-#log-box {
-  flex: 1;
-  background: var(--white);
-  border-radius: 1.4vh;
-  padding: 1.2vh 1vw;
-  overflow: hidden;
-  min-height: 0;
+#p-log-list{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  overflow:hidden;
 }
 
-#log-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5vh;
+.log-row{
+  font-size:clamp(.7rem,.85vw,.88rem);
+  font-weight:600;
+  color:var(--t2);
+  padding:5px 0;
+  border-bottom:1px solid #F0EAE0;
+  animation:lslide .2s ease;
+  line-height:1.3;
 }
+.log-row:last-child{ border-bottom:none; }
+.log-row.err{ color:var(--c-absent); }
 
-.log-row {
-  font-size: clamp(0.7rem, 0.9vw, 0.9rem);
-  font-weight: 600;
-  color: var(--text-m);
-  padding: 0.5vh 0;
-  border-bottom: 1px solid #EDE7DC;
-  animation: fadeSlide 0.2s ease;
-}
-
-.log-row:last-child { border-bottom: none; }
-.log-row.err { color: var(--absent); }
-
-@keyframes fadeSlide {
-  from { opacity: 0; transform: translateY(-5px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes lslide{
+  from{opacity:0;transform:translateY(-4px)}
+  to  {opacity:1;transform:translateY(0)}
 }
 
 /* 老師橫幅 */
-#teacher-bar {
-  background: rgba(255,255,255,0.18);
-  border-radius: 1vh;
-  padding: 0.9vh 1vw;
-  text-align: center;
-  font-size: clamp(0.72rem, 0.9vw, 0.88rem);
-  font-weight: 700;
-  color: #FFFFFF;
-  flex-shrink: 0;
+#p-teacher{
+  background:rgba(255,255,255,.18);
+  border-radius:10px;
+  padding:9px 12px;
+  text-align:center;
+  font-size:clamp(.7rem,.82vw,.85rem);
+  font-weight:700;
+  color:var(--tw);
+  flex-shrink:0;
+}
+#p-teacher.hidden{ display:none; }
+
+/* ─── 右側座位格 ─────────────────────────────────────────── */
+#grid-area{
+  flex:1;
+  height:100%;
+  min-width:0;
+  background:#C6B8A4;
+  border-radius:calc(var(--r)*1.5);
+  padding:14px;
+  display:flex;
+  align-items:stretch;
 }
 
-#teacher-bar.hidden { display: none; }
-
-/* ── 右側座位格 ───────────────────────────────────────────── */
-#right-panel {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
+#seat-grid{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  grid-template-rows:repeat(8,1fr);
+  gap:9px;
 }
 
-#grid-wrap {
-  /* 讓格子維持 6:8 比例，不超出螢幕 */
-  height: 100%;
-  aspect-ratio: 6 / 8;
-  max-width: 100%;
-  background: var(--grid-bg);
-  border-radius: 2.2vh;
-  padding: 1.4vh;
-}
-
-#seat-grid {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  gap: 0.9vh;
-}
-
-/* ── 座位卡 ──────────────────────────────────────────────── */
-.sc {
-  border-radius: 1.2vh;
-  background: var(--seat-empty);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15vh;
-  padding: 0.4vh 0.3vw;
-  cursor: default;
-  transition: background 0.25s ease, transform 0.1s ease;
-  overflow: hidden;
-  position: relative;
-}
-
-.sc.clickable { cursor: pointer; }
-.sc.clickable:hover {
-  transform: scale(1.04);
-  box-shadow: 0 0 0 2.5px rgba(255,255,255,0.6);
+/* ─── 座位卡 ─────────────────────────────────────────────── */
+.sc{
+  background:var(--c-empty);
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:4px 6px;
+  cursor:default;
+  position:relative;
+  overflow:hidden;
+  transition:background .22s,transform .1s;
 }
 
 /* 空座位 */
-.sc-empty-id {
-  font-size: clamp(0.6rem, 1vw, 1rem);
-  font-weight: 900;
-  color: var(--seat-et);
-  letter-spacing: 0.04em;
+.sc.empty .sc-id-big{
+  font-size:clamp(.75rem,1.1vw,1.1rem);
+  font-weight:900;
+  color:var(--e-t);
+  letter-spacing:.05em;
 }
 
-/* 有學生的座位卡 */
-.sc-seat-id {
-  font-size: clamp(0.5rem, 0.7vw, 0.72rem);
-  font-weight: 700;
-  color: rgba(0,0,0,0.35);
-  letter-spacing: 0.04em;
-  line-height: 1;
+/* 有學生 */
+.sc.occ .sc-seatid{
+  position:absolute;
+  top:5px; left:7px;
+  font-size:clamp(.48rem,.6vw,.62rem);
+  font-weight:700;
+  color:rgba(0,0,0,.28);
+  line-height:1;
 }
 
-.sc-class {
-  font-size: clamp(0.52rem, 0.72vw, 0.74rem);
-  font-weight: 700;
-  color: rgba(0,0,0,0.55);
-  line-height: 1;
+.sc.occ .sc-class{
+  font-size:clamp(.55rem,.72vw,.74rem);
+  font-weight:700;
+  color:rgba(0,0,0,.45);
+  line-height:1;
+  margin-top:8px;   /* push down from top-left label */
 }
 
-.sc-name {
-  font-size: clamp(0.68rem, 1vw, 1rem);
-  font-weight: 900;
-  color: var(--present-t);
-  line-height: 1.1;
-  text-align: center;
+.sc.occ .sc-name{
+  font-size:clamp(.72rem,1.05vw,1.05rem);
+  font-weight:900;
+  color:var(--p-t);
+  line-height:1.15;
+  text-align:center;
 }
 
-.sc-badge {
-  font-size: clamp(0.45rem, 0.62vw, 0.62rem);
-  font-weight: 700;
-  background: rgba(0,0,0,0.12);
-  border-radius: 3px;
-  padding: 1px 4px;
-  color: inherit;
-  margin-top: 0.1vh;
+.sc.occ .sc-badge{
+  font-size:clamp(.44rem,.56vw,.58rem);
+  font-weight:700;
+  background:rgba(0,0,0,.13);
+  border-radius:4px;
+  padding:1px 5px;
+  color:inherit;
 }
 
-/* 狀態色 */
-.sc[data-s="PRESENT"]  { background: var(--present); }
-.sc[data-s="LATE"]     { background: var(--late);    }
-.sc[data-s="OUT"]      { background: var(--out);     }
-.sc[data-s="EXPECTED"] { background: var(--expected);}
-.sc[data-s="EXCUSED"]  { background: var(--excused); }
-.sc[data-s="ABSENT"]   { background: var(--absent);  }
+/* 狀態背景 + 字色 */
+.sc[data-s="PRESENT"] { background:var(--c-present); }
+.sc[data-s="LATE"]    { background:var(--c-late);    }
+.sc[data-s="OUT"]     { background:var(--c-out);     }
+.sc[data-s="EXPECTED"]{ background:var(--c-expected);}
+.sc[data-s="EXCUSED"] { background:var(--c-excused); }
+.sc[data-s="ABSENT"]  { background:var(--c-absent);  }
 
-.sc[data-s="EXPECTED"] .sc-seat-id,
 .sc[data-s="EXPECTED"] .sc-class,
-.sc[data-s="EXPECTED"] .sc-name { color: rgba(255,255,255,0.9); }
-.sc[data-s="EXCUSED"]  .sc-seat-id,
+.sc[data-s="EXPECTED"] .sc-name,
+.sc[data-s="EXPECTED"] .sc-seatid{ color:rgba(255,255,255,.85); }
 .sc[data-s="EXCUSED"]  .sc-class,
-.sc[data-s="EXCUSED"]  .sc-name  { color: rgba(255,255,255,0.9); }
-.sc[data-s="ABSENT"]   .sc-seat-id,
+.sc[data-s="EXCUSED"]  .sc-name,
+.sc[data-s="EXCUSED"]  .sc-seatid{ color:rgba(255,255,255,.85); }
 .sc[data-s="ABSENT"]   .sc-class,
-.sc[data-s="ABSENT"]   .sc-name  { color: rgba(255,255,255,0.9); }
+.sc[data-s="ABSENT"]   .sc-name,
+.sc[data-s="ABSENT"]   .sc-seatid{ color:rgba(255,255,255,.85); }
+.sc[data-s="LATE"]     .sc-name,
+.sc[data-s="OUT"]      .sc-name  { color:var(--l-t); }
 
-/* ── 狀態選單 overlay ─────────────────────────────────────── */
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
+/* 老師模式 hover */
+.sc.clickable{ cursor:pointer; }
+.sc.clickable:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 0 2.5px rgba(255,255,255,.7);
+  z-index:1;
 }
 
-#overlay.hidden { display: none; }
+/* ─── 狀態選單 overlay ───────────────────────────────────── */
+#overlay{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.42);
+  backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200;
+}
+#overlay.hidden{ display:none; }
 
-#status-menu {
-  background: var(--white);
-  border-radius: 2vh;
-  padding: 2.4vh 2vw;
-  min-width: 220px;
-  max-width: 90vw;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+#smenu{
+  background:var(--white);
+  border-radius:20px;
+  padding:22px 20px;
+  min-width:230px;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);
 }
 
-#menu-title {
-  font-size: 1rem;
-  font-weight: 900;
-  color: var(--text-h);
-  text-align: center;
-  margin-bottom: 1.6vh;
+#smenu-title{
+  font-size:1.02rem;
+  font-weight:900;
+  color:var(--t1);
+  text-align:center;
+  margin-bottom:14px;
 }
 
-#menu-opts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7vh;
-  margin-bottom: 0.8vh;
+#smenu-opts{
+  display:flex; flex-direction:column; gap:7px;
+  margin-bottom:9px;
 }
 
-.mopt {
-  width: 100%;
-  padding: 1vh 1.2vw;
-  border: 2px solid #EDE7DC;
-  border-radius: 1vh;
-  background: #FDFAF6;
-  color: var(--text-h);
-  font-size: 0.92rem;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: border-color 0.15s, background 0.15s;
+.mopt{
+  width:100%;
+  padding:10px 14px;
+  border:2px solid #EDE7DC;
+  border-radius:11px;
+  background:var(--off-white);
+  color:var(--t1);
+  font-size:.93rem;
+  font-weight:700;
+  cursor:pointer;
+  text-align:left;
+  font-family:inherit;
+  transition:border-color .14s,background .14s;
 }
+.mopt:hover  { border-color:var(--panel-bg); background:#EDE7DC; }
+.mopt.cur    { border-color:var(--c-present); background:#FFF8DC; }
 
-.mopt:hover   { border-color: var(--panel); background: #F5EFE6; }
-.mopt.current { border-color: var(--present); background: #FFF8DC; }
-
-#menu-cancel {
-  width: 100%;
-  padding: 0.9vh;
-  border: none;
-  border-radius: 1vh;
-  background: #EDE7DC;
-  color: var(--text-m);
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
+#smenu-cancel{
+  width:100%;
+  padding:9px;
+  border:none; border-radius:11px;
+  background:#EDE7DC; color:var(--t2);
+  font-size:.88rem; font-weight:700;
+  cursor:pointer; font-family:inherit;
+  transition:background .14s;
 }
-
-#menu-cancel:hover { background: #E0D8CC; }
+#smenu-cancel:hover{ background:#E2D8CC; }
