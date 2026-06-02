@@ -1,361 +1,334 @@
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --border: #2a2d3e;
-  --text: #e8eaf0;
-  --muted: #6b7280;
+  --bg:           #E2D5C3;
+  --panel:        #9B8A78;
+  --panel-open:   #7A6B5C;
+  --card:         #FFFFFF;
+  --text-dark:    #1C1410;
+  --text-mid:     #5C5040;
+  --text-light:   #9C8E80;
 
-  --empty:    #2a2d3e;
-  --expected: #e9671b;
-  --present:  #f1b928;
-  --late:     #f59e0b;
-  --out:      #fcd34d;
-  --excused:  #3b82f6;
-  --absent:   #dc2626;
+  --empty:        #EDE6DA;
+  --empty-text:   #B0A898;
+  --present:      #F0C040;
+  --present-text: #3A2C00;
+  --late:         #F59E0B;
+  --late-text:    #3A2C00;
+  --out:          #FDE68A;
+  --out-text:     #5C4A00;
+  --expected:     #E8671B;
+  --expected-text:#FFFFFF;
+  --excused:      #4A90D9;
+  --excused-text: #FFFFFF;
+  --absent:       #C0392B;
+  --absent-text:  #FFFFFF;
 }
 
-body {
-  font-family: 'Noto Sans TC', 'Segoe UI', system-ui, sans-serif;
+html, body {
+  height: 100%;
   background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  font-family: 'Noto Sans TC', 'PingFang TC', system-ui, sans-serif;
+  overflow: hidden;
 }
 
+/* ── 整體分欄 ── */
 #app {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  gap: 20px;
+  padding: 20px;
 }
 
-/* ─── Header ─── */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 24px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+/* ── 左側面板 ── */
+#left-panel {
+  width: 380px;
   flex-shrink: 0;
-}
-
-.header-left {
+  background: var(--panel);
+  border-radius: 24px;
+  padding: 28px 24px 24px;
   display: flex;
-  align-items: center;
-  gap: 14px;
+  flex-direction: column;
+  gap: 16px;
+  transition: background 0.4s ease;
 }
 
-h1 {
-  font-size: 1.25rem;
-  font-weight: 700;
+#left-panel.session-open { background: var(--panel-open); }
+
+#classroom-name {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--card);
   letter-spacing: 0.02em;
+  line-height: 1;
 }
 
-#current-date, #current-weekday {
-  font-size: 0.9rem;
-  color: var(--muted);
+/* 日期時間卡 */
+#datetime-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 14px 20px 16px;
 }
 
-.header-right {
+#current-date {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-mid);
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+#current-time {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 統計卡 */
+#stats-row {
   display: flex;
+  gap: 10px;
+}
+
+.stat-card {
+  flex: 1;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 14px 8px 12px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
+}
+
+.stat-label {
   font-size: 0.85rem;
-  color: var(--muted);
+  font-weight: 700;
+  color: var(--text-mid);
 }
 
-.status-badge {
-  color: var(--text);
+.stat-num {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-unit {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-weight: 700;
+}
+
+/* 提示文字 */
+#scan-hint {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.06em;
+}
+
+/* 通知框 */
+#notif-box {
+  flex: 1;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 14px 16px;
+  min-height: 80px;
+  overflow: hidden;
+}
+
+#notif-content {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+.notif-item {
+  padding: 4px 0;
+  border-bottom: 1px solid #F0EBE3;
   font-weight: 600;
+  animation: slideIn 0.2s ease;
 }
 
-/* ─── Teacher Banner ─── */
+.notif-item:last-child { border-bottom: none; }
+.notif-item.error { color: var(--absent); }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 老師管理橫幅 */
 #teacher-banner {
   display: none;
-  background: #b45309;
-  color: white;
-  padding: 10px 24px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 10px 16px;
   text-align: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFFFFF;
 }
 
-#teacher-banner.visible {
-  display: block;
-}
+#teacher-banner.visible { display: block; }
 
-/* ─── Notification ─── */
-#notification {
-  position: fixed;
-  bottom: 72px;
-  right: 20px;
-  background: #1e293b;
-  border: 1px solid #334155;
-  color: var(--text);
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 500;
-  z-index: 50;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  pointer-events: none;
-  max-width: 280px;
-}
-
-#notification.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ─── Grid ─── */
-main {
+/* ── 右側座位格 ── */
+#right-panel {
   flex: 1;
-  padding: 16px 20px;
-  overflow: auto;
-}
-
-.grid-labels {
-  display: grid;
-  grid-template-columns: 28px repeat(6, 1fr);
-  gap: 6px;
-  margin-bottom: 4px;
-  padding: 0 2px;
-}
-
-.corner { }
-
-.col-label {
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #seat-grid {
+  background: #C8BAA8;
+  border-radius: 24px;
+  padding: 16px;
   display: grid;
-  grid-template-columns: 28px repeat(6, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 720px;
+  aspect-ratio: 6/8;
 }
 
-.row-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-/* ─── Seat Card ─── */
+/* ── 座位卡 ── */
 .seat-card {
-  border-radius: 8px;
-  padding: 8px 6px 6px;
-  min-height: 80px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  text-align: center;
-  position: relative;
+  gap: 3px;
   cursor: default;
-  transition: background-color 0.25s ease, transform 0.1s ease, box-shadow 0.1s ease;
-  user-select: none;
+  transition: background 0.25s ease, transform 0.1s ease;
+  background: var(--empty);
+  padding: 4px;
+  min-height: 0;
 }
 
-.seat-card.teacher-mode:not(.empty) {
+.seat-card.has-student.teacher-mode {
   cursor: pointer;
 }
-
-.seat-card.teacher-mode:not(.empty):hover {
-  transform: scale(1.04);
-  box-shadow: 0 0 0 2px #f59e0b;
+.seat-card.has-student.teacher-mode:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2.5px #F0C040;
 }
 
-.seat-card.empty {
-  background: var(--empty);
-  opacity: 0.5;
-}
-
+.seat-card[data-status="PRESENT"]  { background: var(--present); }
+.seat-card[data-status="LATE"]     { background: var(--late); }
+.seat-card[data-status="OUT"]      { background: var(--out); }
 .seat-card[data-status="EXPECTED"] { background: var(--expected); }
-.seat-card[data-status="PRESENT"]  { background: var(--present);  }
-.seat-card[data-status="LATE"]     { background: var(--late);     }
-.seat-card[data-status="OUT"]      { background: var(--out);      }
-.seat-card[data-status="EXCUSED"]  { background: var(--excused);  }
-.seat-card[data-status="ABSENT"]   { background: var(--absent);   }
+.seat-card[data-status="EXCUSED"]  { background: var(--excused); }
+.seat-card[data-status="ABSENT"]   { background: var(--absent); }
 
-.seat-id {
-  font-size: 0.6rem;
-  font-weight: 700;
-  opacity: 0.55;
-  position: absolute;
-  top: 5px;
-  left: 6px;
-}
-
-.seat-name {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #111;
-  line-height: 1.2;
-}
-
-.seat-card[data-status="EXPECTED"] .seat-name,
-.seat-card[data-status="EXCUSED"]  .seat-name,
-.seat-card[data-status="ABSENT"]   .seat-name {
-  color: #fff;
+.seat-id-label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--empty-text);
+  letter-spacing: 0.04em;
 }
 
 .seat-class {
-  font-size: 0.68rem;
-  color: rgba(0,0,0,0.5);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--present-text);
+  line-height: 1;
+}
+
+.seat-name {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--present-text);
+  line-height: 1;
 }
 
 .seat-card[data-status="EXPECTED"] .seat-class,
+.seat-card[data-status="EXPECTED"] .seat-name { color: var(--expected-text); }
 .seat-card[data-status="EXCUSED"]  .seat-class,
-.seat-card[data-status="ABSENT"]   .seat-class {
-  color: rgba(255,255,255,0.6);
-}
+.seat-card[data-status="EXCUSED"]  .seat-name  { color: var(--excused-text); }
+.seat-card[data-status="ABSENT"]   .seat-class,
+.seat-card[data-status="ABSENT"]   .seat-name  { color: var(--absent-text); }
 
 .seat-badge {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 700;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.12);
   border-radius: 4px;
-  padding: 1px 5px;
-  color: #111;
+  padding: 1px 4px;
+  color: inherit;
   margin-top: 1px;
 }
 
-.seat-card[data-status="EXPECTED"] .seat-badge,
-.seat-card[data-status="EXCUSED"]  .seat-badge,
-.seat-card[data-status="ABSENT"]   .seat-badge {
-  color: #fff;
-  background: rgba(255,255,255,0.2);
-}
-
-.seat-time {
-  font-size: 0.62rem;
-  opacity: 0.55;
-  color: #111;
-  position: absolute;
-  bottom: 4px;
-  right: 5px;
-}
-
-/* ─── Status Menu Overlay ─── */
-.overlay {
+/* ── 狀態選單 overlay ── */
+#overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
-  z-index: 100;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(2px);
+  z-index: 100;
 }
 
-.overlay.hidden {
-  display: none;
+#overlay.hidden { display: none; }
+
+#status-menu {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px;
+  min-width: 240px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
 }
 
-.menu-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  min-width: 220px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+#menu-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  text-align: center;
 }
 
-.menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.menu-close-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: color 0.15s;
-}
-
-.menu-close-btn:hover { color: var(--text); }
-
-#menu-buttons {
+#menu-options {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.menu-btn {
-  padding: 10px 16px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 0.9rem;
-  font-weight: 500;
+.menu-opt {
+  padding: 11px 16px;
+  border: 2px solid #EDE6DA;
+  border-radius: 12px;
+  background: #FDFAF6;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s, border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.menu-btn:hover { background: var(--border); }
+.menu-opt:hover { border-color: var(--panel); background: #F5EFE6; }
+.menu-opt.active { border-color: var(--present); background: #FFF8E0; }
 
-.menu-btn.active {
-  border-color: #f59e0b;
-  background: rgba(245,158,11,0.12);
-  color: #f59e0b;
+#menu-cancel {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #F0EBE3;
+  color: var(--text-mid);
+  font-size: 0.9rem;
   font-weight: 700;
+  cursor: pointer;
 }
 
-/* ─── Footer ─── */
-footer {
-  padding: 10px 20px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.legend {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.chip {
-  padding: 3px 11px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.chip-empty    { background: var(--empty);    color: var(--muted); }
-.chip-expected { background: var(--expected); color: #fff; }
-.chip-present  { background: var(--present);  color: #111; }
-.chip-late     { background: var(--late);     color: #111; }
-.chip-out      { background: var(--out);      color: #111; }
-.chip-excused  { background: var(--excused);  color: #fff; }
-.chip-absent   { background: var(--absent);   color: #fff; }
+#menu-cancel:hover { background: #E5DDD4; }

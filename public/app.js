@@ -1,13 +1,5 @@
-const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const COLS = [1, 2, 3, 4, 5, 6];
-
-const STATUS_LABELS = {
-  PRESENT: '準時抵達',
-  LATE:    '遲到',
-  OUT:     '外出中',
-  EXCUSED: '請假',
-  ABSENT:  '曠課',
-};
+const ROWS = ['A','B','C','D','E','F','G','H'];
+const COLS = [1,2,3,4,5,6];
 
 const MANUAL_OPTIONS = [
   { value: 'PRESENT', label: '✓ 準時抵達' },
@@ -17,10 +9,15 @@ const MANUAL_OPTIONS = [
   { value: 'ABSENT',  label: '✗ 曠課' },
 ];
 
-const ERROR_MSGS = {
-  SESSION_NOT_OPEN:  '課程尚未開始',
-  UNKNOWN_CARD:      '未知卡號',
-  NOT_ENROLLED_TODAY:'今日未報名',
+const STATUS_LABEL = {
+  PRESENT: '準時抵達', LATE: '遲到', OUT: '外出中',
+  EXCUSED: '請假', ABSENT: '曠課', EXPECTED: '應到未到',
+};
+
+const ERROR_MSG = {
+  SESSION_NOT_OPEN:   '課程尚未開始',
+  UNKNOWN_CARD:       '未知卡號',
+  NOT_ENROLLED_TODAY: '今日未報名',
 };
 
 let state = {
@@ -30,27 +27,41 @@ let state = {
   sessionOpen: false,
 };
 
-let notifTimer = null;
-let cardBuffer = '';
-let cardTimer = null;
+let notifTimer   = null;
+let cardBuffer   = '';
+let bufferTimer  = null;
+let notifItems   = [];
 
-// ─── Card Reader ───────────────────────────────────────────
+// ── 時鐘 ────────────────────────────────────────────────────
+function startClock() {
+  function tick() {
+    const now  = new Date();
+    const hh   = String(now.getHours()).padStart(2, '0');
+    const mm   = String(now.getMinutes()).padStart(2, '0');
+    const ss   = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('current-time').textContent = `${hh}：${mm}：${ss}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── 卡機輸入監聽 ─────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     const card = cardBuffer.trim();
     cardBuffer = '';
-    clearTimeout(cardTimer);
+    clearTimeout(bufferTimer);
     if (card.length > 0) processCard(card);
-  } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+  } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
     cardBuffer += e.key;
-    clearTimeout(cardTimer);
-    cardTimer = setTimeout(() => { cardBuffer = ''; }, 1500);
+    clearTimeout(bufferTimer);
+    bufferTimer = setTimeout(() => { cardBuffer = ''; }, 1500);
   }
 });
 
 async function processCard(cardId) {
   try {
-    const res = await fetch('/api/swipe', {
+    const res  = await fetch('/api/swipe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ card_id: cardId }),
@@ -59,75 +70,72 @@ async function processCard(cardId) {
 
     if (data.type === 'SESSION_OPENED') {
       state.teacherCardId = cardId;
-      state.sessionOpen = true;
-      updateSessionBadge(true);
-      showNotif(`Session 開啟 — ${data.teacher.name}`);
+      state.sessionOpen   = true;
+      document.getElementById('left-panel').classList.add('session-open');
+      updateHint('Session 已開啟');
+      pushNotif(`✅ Session 開啟 — ${data.teacher.name}`);
       await loadSeats();
     } else if (data.type === 'TEACHER_MODE') {
       state.teacherCardId = cardId;
-      toggleTeacherMode();
+      toggleTeacherMode(data.teacher.name);
     } else if (data.type === 'STATUS_UPDATED') {
-      updateSeat(data.seat, data.new_status, data.student);
-      showNotif(`${data.student.name}  ${STATUS_LABELS[data.new_status] ?? data.new_status}`);
+      applySeatUpdate(data.seat, data.new_status, data.student);
+      pushNotif(`${data.student.name}　${STATUS_LABEL[data.new_status] ?? data.new_status}`);
+      updateStats();
     } else if (data.type === 'NO_CHANGE') {
-      showNotif(`${data.status} — 無法由刷卡變更`, true);
+      pushNotif(`⚠ ${STATUS_LABEL[data.status] ?? data.status} — 狀態無法由刷卡變更`, true);
     } else if (data.error) {
-      showNotif(`⚠ ${ERROR_MSGS[data.error] ?? data.error}`, true);
+      pushNotif(`⚠ ${ERROR_MSG[data.error] ?? data.error}`, true);
     }
   } catch {
-    showNotif('⚠ 網路錯誤', true);
+    pushNotif('⚠ 網路錯誤', true);
   }
 }
 
-// ─── Teacher Mode ──────────────────────────────────────────
-function toggleTeacherMode() {
+// ── 老師模式 ─────────────────────────────────────────────────
+function toggleTeacherMode(teacherName) {
   state.teacherMode = !state.teacherMode;
-  const banner = document.getElementById('teacher-banner');
-  banner.classList.toggle('visible', state.teacherMode);
-
-  document.querySelectorAll('.seat-card').forEach((el) => {
+  document.getElementById('teacher-banner').classList.toggle('visible', state.teacherMode);
+  document.querySelectorAll('.seat-card.has-student').forEach(el => {
     el.classList.toggle('teacher-mode', state.teacherMode);
   });
-
-  showNotif(state.teacherMode ? '🔑 已進入管理模式' : '✓ 已退出管理模式');
+  pushNotif(state.teacherMode ? `🔑 管理模式 — ${teacherName}` : '✓ 退出管理模式');
 }
 
-function openStatusMenu(seatId) {
+function openMenu(seatId) {
   const seat = state.seats[seatId];
-  if (!seat || !seat.student_id) return;
+  if (!seat?.student_id) return;
 
-  document.getElementById('menu-seat-label').textContent = `${seat.name}（${seatId}）`;
+  document.getElementById('menu-title').textContent = `${seat.name}（${seatId}）`;
 
-  const btnContainer = document.getElementById('menu-buttons');
-  btnContainer.innerHTML = '';
-
+  const opts = document.getElementById('menu-options');
+  opts.innerHTML = '';
   MANUAL_OPTIONS.forEach(({ value, label }) => {
     const btn = document.createElement('button');
-    btn.className = 'menu-btn' + (seat.status === value ? ' active' : '');
+    btn.className = 'menu-opt' + (seat.status === value ? ' active' : '');
     btn.textContent = label;
-    btn.addEventListener('click', async () => {
-      closeStatusMenu();
-      await setManualStatus(seat.student_id, value, seatId);
-    });
-    btnContainer.appendChild(btn);
+    btn.onclick = async () => {
+      closeMenu();
+      await applyManual(seat.student_id, value, seatId);
+    };
+    opts.appendChild(btn);
   });
 
-  const overlay = document.getElementById('status-menu-overlay');
-  overlay.classList.remove('hidden');
+  document.getElementById('overlay').classList.remove('hidden');
 }
 
-function closeStatusMenu() {
-  document.getElementById('status-menu-overlay').classList.add('hidden');
+function closeMenu() {
+  document.getElementById('overlay').classList.add('hidden');
 }
 
-document.getElementById('menu-close').addEventListener('click', closeStatusMenu);
-document.getElementById('status-menu-overlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeStatusMenu();
+document.getElementById('overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeMenu();
 });
+document.getElementById('menu-cancel').addEventListener('click', closeMenu);
 
-async function setManualStatus(studentId, newStatus, seatId) {
+async function applyManual(studentId, newStatus, seatId) {
   try {
-    const res = await fetch('/api/manual', {
+    const res  = await fetch('/api/manual', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -138,130 +146,123 @@ async function setManualStatus(studentId, newStatus, seatId) {
     });
     const data = await res.json();
     if (!data.error) {
-      const seat = state.seats[seatId];
-      if (seat) seat.status = newStatus;
-      updateSeatCard(seatId, newStatus);
-      showNotif(`${state.seats[seatId]?.name}  →  ${STATUS_LABELS[newStatus] ?? newStatus}`);
+      if (state.seats[seatId]) state.seats[seatId].status = newStatus;
+      renderSeatCard(seatId);
+      updateStats();
+      pushNotif(`${state.seats[seatId]?.name}  →  ${STATUS_LABEL[newStatus]}`);
     } else {
-      showNotif(`⚠ ${data.error}`, true);
+      pushNotif(`⚠ ${data.error}`, true);
     }
-  } catch {
-    showNotif('⚠ 網路錯誤', true);
-  }
+  } catch { pushNotif('⚠ 網路錯誤', true); }
 }
 
-// ─── Seat Rendering ────────────────────────────────────────
+// ── 座位格建立 ───────────────────────────────────────────────
 function buildGrid() {
   const grid = document.getElementById('seat-grid');
   grid.innerHTML = '';
-
-  ROWS.forEach((row) => {
-    const rowLabel = document.createElement('div');
-    rowLabel.className = 'row-label';
-    rowLabel.textContent = row;
-    grid.appendChild(rowLabel);
-
-    COLS.forEach((col) => {
+  ROWS.forEach(row => {
+    COLS.forEach(col => {
       const seatId = `${row}${col}`;
-      const card = document.createElement('div');
-      card.className = 'seat-card empty';
+      const card   = document.createElement('div');
+      card.className   = 'seat-card';
       card.dataset.seat = seatId;
-      card.innerHTML = `<span class="seat-id">${seatId}</span>`;
+      card.innerHTML = `<span class="seat-id-label">${seatId}</span>`;
       card.addEventListener('click', () => {
-        if (state.teacherMode) openStatusMenu(seatId);
+        if (state.teacherMode) openMenu(seatId);
       });
       grid.appendChild(card);
     });
   });
 }
 
-function renderSeats(seats) {
-  seats.forEach((seat) => {
-    state.seats[seat.seat] = seat;
-    updateSeatCard(seat.seat, seat.status, seat);
-  });
-}
-
-function updateSeat(seatId, newStatus, student) {
-  if (state.seats[seatId]) {
-    state.seats[seatId].status = newStatus;
-    if (student) {
-      state.seats[seatId].name = student.name;
-      state.seats[seatId].class = student.class;
-    }
-  }
-  updateSeatCard(seatId, newStatus);
-}
-
-function updateSeatCard(seatId, status, seatData) {
-  const el = document.querySelector(`[data-seat="${seatId}"]`);
+function renderSeatCard(seatId) {
+  const el   = document.querySelector(`[data-seat="${seatId}"]`);
+  const seat = state.seats[seatId];
   if (!el) return;
 
-  const seat = seatData ?? state.seats[seatId];
-  if (!seat) return;
-
-  if (!seat.student_id) {
-    el.className = 'seat-card empty';
-    el.dataset.status = '';
-    el.innerHTML = `<span class="seat-id">${seatId}</span>`;
+  if (!seat?.student_id) {
+    el.className       = 'seat-card';
+    el.dataset.status  = '';
+    el.innerHTML       = `<span class="seat-id-label">${seatId}</span>`;
     return;
   }
 
-  el.className = 'seat-card' + (state.teacherMode ? ' teacher-mode' : '');
-  el.dataset.status = status ?? 'EXPECTED';
+  const status = seat.status ?? 'EXPECTED';
+  el.className      = 'seat-card has-student' + (state.teacherMode ? ' teacher-mode' : '');
+  el.dataset.status = status;
 
-  const badge = badgeFor(status, seat.checkin_at);
+  const badge = badgeText(status);
   el.innerHTML = `
-    <span class="seat-id">${seatId}</span>
-    <span class="seat-name">${seat.name ?? ''}</span>
     <span class="seat-class">${seat.class ?? ''}</span>
+    <span class="seat-name">${seat.name ?? ''}</span>
     ${badge ? `<span class="seat-badge">${badge}</span>` : ''}
-    ${seat.checkin_at ? `<span class="seat-time">${seat.checkin_at.slice(0, 5)}</span>` : ''}
   `;
 }
 
-function badgeFor(status) {
-  const map = {
-    LATE:    '遲到',
-    OUT:     '外出中',
-    EXCUSED: '請假',
-    ABSENT:  '曠課',
-  };
-  return map[status] ?? null;
+function applySeatUpdate(seatId, newStatus, student) {
+  if (state.seats[seatId]) {
+    state.seats[seatId].status = newStatus;
+    if (student?.name)  state.seats[seatId].name  = student.name;
+    if (student?.class) state.seats[seatId].class = student.class;
+  }
+  renderSeatCard(seatId);
 }
 
-// ─── Data Loading ──────────────────────────────────────────
+function badgeText(status) {
+  return { LATE: '遲到', OUT: '外出中', EXCUSED: '請假', ABSENT: '曠課' }[status] ?? null;
+}
+
+// ── 統計 ─────────────────────────────────────────────────────
+function updateStats() {
+  const all      = Object.values(state.seats).filter(s => s.student_id);
+  const expected = all.length;
+  const present  = all.filter(s => ['PRESENT','LATE','OUT'].includes(s.status)).length;
+  const absent   = all.filter(s => ['EXPECTED','ABSENT'].includes(s.status)).length;
+
+  document.getElementById('stat-expected').textContent = expected;
+  document.getElementById('stat-present').textContent  = present;
+  document.getElementById('stat-absent').textContent   = absent;
+}
+
+// ── 資料載入 ─────────────────────────────────────────────────
 async function loadSeats() {
   try {
-    const res = await fetch('/api/seats/today');
+    const res  = await fetch('/api/seats/today');
     const data = await res.json();
 
-    document.getElementById('current-date').textContent = data.date ?? '—';
-    document.getElementById('current-weekday').textContent = data.weekday ?? '—';
+    const d = new Date();
+    const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    document.getElementById('current-date').textContent = dateStr;
 
     state.sessionOpen = data.session_open;
-    updateSessionBadge(data.session_open);
-    renderSeats(data.seats ?? []);
+    document.getElementById('left-panel').classList.toggle('session-open', data.session_open);
+    updateHint(data.session_open ? null : '請感應卡片簽到');
+
+    (data.seats ?? []).forEach(seat => { state.seats[seat.seat] = seat; });
+    ROWS.forEach(r => COLS.forEach(c => renderSeatCard(`${r}${c}`)));
+    updateStats();
   } catch {
-    // silent — will retry on next poll
+    // 靜默重試
   }
 }
 
-function updateSessionBadge(open) {
-  document.getElementById('session-status').textContent = open ? '🟢 進行中' : '⚪ 未開始';
+function updateHint(msg) {
+  if (msg) document.getElementById('scan-hint').textContent = msg;
 }
 
-// ─── Notification ──────────────────────────────────────────
-function showNotif(msg, isError = false) {
-  const el = document.getElementById('notification');
-  el.textContent = msg;
-  el.style.borderColor = isError ? '#dc2626' : '#334155';
-  el.classList.add('show');
-  clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => el.classList.remove('show'), isError ? 4000 : 2500);
+// ── 通知框 ───────────────────────────────────────────────────
+function pushNotif(msg, isError = false) {
+  notifItems.unshift({ msg, isError, ts: Date.now() });
+  if (notifItems.length > 5) notifItems.pop();
+
+  const box = document.getElementById('notif-content');
+  box.innerHTML = notifItems.map(item =>
+    `<div class="notif-item${item.isError ? ' error' : ''}">${item.msg}</div>`
+  ).join('');
 }
 
-// ─── Init ──────────────────────────────────────────────────
+// ── 初始化 ───────────────────────────────────────────────────
 buildGrid();
+startClock();
 loadSeats();
 setInterval(loadSeats, 10_000);
